@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Editor, EditorState, RichUtils, Modifier, convertToRaw } from 'draft-js';
 import { css } from '@emotion/core'
+import decorator from './decorators'
 
 const appCss = css`
   padding: 50px;
@@ -20,7 +21,7 @@ const toolBar = css`
 `
 
 const App = () => {
-  const [editorState, setEditorState] = useState(EditorState.createEmpty())
+  const [editorState, setEditorState] = useState(EditorState.createEmpty(decorator))
 
   const handleKeyCmd = (cmd, editorState) => {
     const newState = RichUtils.handleKeyCommand(editorState, cmd)
