@@ -29,7 +29,6 @@ const Link = ({
 }
 
 const findLinkStrategy = (contentBlock, callback, contentState) => {
-  console.log('hi');
   contentBlock.findEntityRanges(
     (character) => {
       const entityKey = character.getEntity();

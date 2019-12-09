@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Editor, EditorState, RichUtils, Modifier, convertToRaw } from 'draft-js';
 import { css } from '@emotion/core'
 import decorator from './decorators'
+import keyBindingFn, { commands } from './keyBindings'
 
 const appCss = css`
   padding: 50px;
@@ -21,16 +22,8 @@ const toolBar = css`
 `
 
 const App = () => {
-  const [editorState, setEditorState] = useState(EditorState.createEmpty(decorator))
-
-  const handleKeyCmd = (cmd, editorState) => {
-    const newState = RichUtils.handleKeyCommand(editorState, cmd)
-    if (newState) {
-      onChange(newState)
-      return 'handled';
-    }
-    return 'not-handled'
-  }
+  const [editorState, setEditorState] = React.useState(EditorState.createEmpty(decorator))
+  const editorRef = React.useRef(null);
 
   const handleClickBold = () => {
     onChange(RichUtils.toggleInlineStyle(editorState, 'BOLD'))
@@ -55,13 +48,36 @@ const App = () => {
   }
 
   const onChange = (editorState) => {
-    console.log('wtd')
     setEditorState(editorState)
   }
 
   const logContent = () => {
+    console.log('state', editorState);
     console.log('content', convertToRaw(editorState.getCurrentContent()));
   }
+
+  const handleKeyCmd = (cmd, editorState) => {
+    // custom command here
+    if (cmd === commands.SAVE) {
+      alert('SAVE !!!')
+      return 'handled'
+    }
+    if (cmd === commands.TEST) {
+      alert('TEST !!!')
+      return 'handled'
+    }
+    //
+    const newState = RichUtils.handleKeyCommand(editorState, cmd)
+    if (newState) {
+      onChange(newState)
+      return 'handled';
+    }
+    return 'not-handled'
+  }
+
+  React.useEffect(() => {
+    editorRef.current.focus()
+  }, [])
 
   return (
     <div css={appCss}>
@@ -72,9 +88,11 @@ const App = () => {
         <div onClick={logContent}>LOG</div>
       </div>
       <Editor
+        ref={editorRef}
         editorState={editorState}
         onChange={onChange}
         handleKeyCommand={handleKeyCmd}
+        keyBindingFn={keyBindingFn}
       />
     </div>
   )
