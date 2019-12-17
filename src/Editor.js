@@ -15,6 +15,12 @@ const Editor = ({
 }) => {
   const [editorState, setEditorState] = React.useState(EditorState.createEmpty(decorator))
   const [title, setTitle] = React.useState('')
+  const [toolBarInfo, setToolBarInfo] = React.useState({
+    top: 0,
+    left: 0,
+    width: 0,
+  })
+  const [isShowToolBar, setIsShowToolBar] = React.useState(false)
   const editorRef = React.useRef(null)
   const titleRef = React.useRef(null)
 
@@ -43,6 +49,28 @@ const Editor = ({
   }
 
   const onEditorChange = (newEditorState, currentTitle) => {
+    const selection = newEditorState.getSelection()
+    const nativeSelection = window.getSelection()
+
+    // console.log(selection)
+    // console.log('startKey', selection.getStartKey())
+    // console.log('startOffset', selection.getStartOffset())
+    // console.log('endKey', selection.getEndKey())
+    // console.log('endOffset', selection.getEndOffset())
+    console.log('isCollapsed', selection.isCollapsed()); // show text is selected
+    if (!selection.isCollapsed() && nativeSelection.rangeCount > 0) {
+      const range = nativeSelection.getRangeAt(0);
+      const { top, left, width } = range.getBoundingClientRect();
+      setToolBarInfo({
+        top,
+        left,
+        width,
+      })
+      setTimeout(setIsShowToolBar.bind(null, true))
+    } else {
+      setIsShowToolBar(false)
+    }
+
     setEditorState(newEditorState)
     if (typeof onChange === 'function') {
       onChange({
@@ -51,6 +79,7 @@ const Editor = ({
       })
     }
   }
+
 
   return (
     <div css={style}>
@@ -69,7 +98,19 @@ const Editor = ({
         editorState={editorState}
         blockStyleFn={blockStyleFn}
         onChange={onEditorChange}
+        // stripPastedStyles={true}
       />
+      {
+        isShowToolBar && (
+          <div
+            className="test"
+            style={{
+              top: toolBarInfo.top,
+              left: toolBarInfo.left + toolBarInfo.width / 2
+            }}
+          />
+        )
+      }
     </div>
   )
 }
@@ -78,7 +119,7 @@ const baseFontSize = '24px';
 const placeholderColor = '#999';
 
 const style = css`
-  position: relative;
+  /* position: relative; */
 
   .editor-title {
     font-size: 42px;
@@ -98,6 +139,7 @@ const style = css`
   .custom {
     &-unstyled {
       font-size: ${baseFontSize};
+      margin-bottom: 24px;
     }
   }
 
@@ -124,6 +166,15 @@ const style = css`
     &:focus {
       outline: none;
     }
+  }
+
+  .test {
+    position: absolute;
+    width: 250px;
+    height: 40px;
+    background-color: grey;
+    transform: translate(-50%, -40px);
+    transition: all .2s ease-out;
   }
 `
 
