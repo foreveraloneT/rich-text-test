@@ -12,7 +12,7 @@ const Home = () => {
 }
 
 const style = css`
-  padding: 50px 100px;
+  padding: 50px 150px;
 `
 
 export default Home
